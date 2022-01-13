@@ -8,15 +8,7 @@ use Asil\VkMarket\Model\Photo;
 
 class PhotoService extends BaseService
 {
-    /**
-     * @param Photo $photo
-     *
-     * @return int|string
-     *
-     * @throws VkException
-     */
-    public function uploadMainPhoto (Photo $photo)
-    {
+    public function uploadMainPhoto (Photo $photo) {
         $mainPhotoId = '';
 
         if (sizeof($photo->getMainPhotoParams())) {
@@ -30,37 +22,28 @@ class PhotoService extends BaseService
         return $mainPhotoId;
     }
 
-    /**
-     * @param Photo $photo
-     *
-     * @return string
-     *
-     * @throws VkException
-     */
     public function uploadAdditionalPhotos (Photo $photo)
     {
         $additionalPhotoIds = '';
 
         if (sizeof($photo->getAdditionalPhotoParams())) {
             foreach ($photo->getAdditionalPhotoParams() as $additionalPhoto) {
-                $uploadUrl = $this->getMarketUploadServer($photo);
-                $id = $this->savePicture($additionalPhoto, $uploadUrl);
-                $additionalPhotoIds .= $id . ',';
+                try {
+                    $uploadUrl = $this->getMarketUploadServer($photo);
+                    $id = $this->savePicture($additionalPhoto, $uploadUrl);
+                    $additionalPhotoIds .= $id . ',';
+                } catch (VkException $e) {
+                    $uploadUrl = $this->getMarketUploadServer($photo);
+                    $id = $this->savePicture($additionalPhoto, $uploadUrl);
+                    $additionalPhotoIds .= $id . ',';
+                }
             }
         }
 
         return $additionalPhotoIds;
     }
 
-    /**
-     * @param Photo $photo
-     *
-     * @return int
-     *
-     * @throws VkException
-     */
-    public function uploadAlbumPhoto(Photo $photo)
-    {
+    public function uploadAlbumPhoto(Photo $photo) {
         $uploadUrl = $this->getMarketAlbumUploadServer();
         $path = $photo->getAlbumPhotoParams();
         $albumPhotoId = $this->saveAlbumPicture($path, $uploadUrl);
@@ -70,13 +53,9 @@ class PhotoService extends BaseService
 
     /**
      * Возвращает адрес сервера для загрузки фотографии товара
-     *
      * @param Photo $photo
-     * @param boolean $mainPhoto
-     *
+     * @param bool $mainPhoto
      * @return string $url
-     *
-     * @throws VkException
      */
     private function getMarketUploadServer(Photo $photo , $mainPhoto = false)
     {
@@ -106,14 +85,10 @@ class PhotoService extends BaseService
 
     /**
      * Сохраняет фотографии для товара
-     *
-     * @param string $path
-     * @param string $uploadUrl    адрес сервера, полученный в методе getMarketUploadServer
-     * @param boolean $mainPhoto
-     *
+     * @param $path
+     * @param string $uploadUrl адрес сервера, полученный в методе getMarketUploadServer
+     * @param bool $mainPhoto
      * @return int $id      идентификатор фотографии товара
-     *
-     * @throws VkException
      */
     private function savePicture($path, $uploadUrl, $mainPhoto = false)
     {
@@ -141,13 +116,9 @@ class PhotoService extends BaseService
 
     /**
      * Сохраняет фотографии для альбома
-     *
-     * @param string $path
-     * @param string $uploadUrl    адрес сервера, полученный в методе getMarketUploadServer
-     *
+     * @param $path
+     * @param string $uploadUrl адрес сервера, полученный в методе getMarketUploadServer
      * @return int $id      идентификатор фотографии товара
-     *
-     * @throws VkException
      */
     private function saveAlbumPicture($path, $uploadUrl)
     {
@@ -173,9 +144,7 @@ class PhotoService extends BaseService
 
     /**
      * Возвращает адрес сервера для загрузки фотографии товара
-     *
      * @return string $url
-     *
      * @throws VkException
      */
     private function getMarketAlbumUploadServer()
@@ -187,17 +156,13 @@ class PhotoService extends BaseService
         ];
 
         $url = $this->connection->getRequest('photos.getMarketAlbumUploadServer', $arr);
-        
         return $url['response']['upload_url'];
     }
 
     /**
      * Передача файла на сервер
-     *
-     * @param string $uploadUrl
-     *
-     * @return mixed
-     *
+     * @param string $uploadUrl адрес сервера, полученный в методе getMarketUploadServer
+     * @return bool|mixed|string
      * @throws VkException
      */
     public function uploadPicture($uploadUrl)

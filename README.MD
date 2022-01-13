@@ -6,11 +6,17 @@ PHP Wrapper for VK market API
 для работы с API ВКонтакте (подробнее здесь - https://vk.com/dev/first_guide).
 Также требуется получить ключ доступа - https://vk.com/dev/access_token.
 
+Обновлено до версии API 5.131
+
+- Возможность додать SKU товара 
+- Возможность использовать скидки товара
+- Предусмотрено перезапуск POST/GET запросов после отказа сервера
+
 Установка
 ==============================
 Через composer:
 ```
-composer require asil/vkmarket
+composer require destroyko/vkmarket
 ```
 
 Примеры использования
@@ -116,6 +122,7 @@ $vkService->addProductToAlbum($albumIds, $vkItemId);
 * ```getProductsInAlbum($albumId = 0, $count = 10, $offset = 0)``` - возвращает список товаров в подборке  
 (по-умолчанию возвращает все товары)
 * ```addProductToAlbum(array $albumIds, $itemId)``` - добавляет товар в подборки
+* ```removeProductFromAlbum(array $albumIds, $itemId)``` - удаляет товар с подборки
 * ```getAlbums($count = 10, $offset = 0)``` - возвращает список подборок
 * ```getAlbumById($albumId)``` - возвращает подбороку товаров по id
 * ```editAlbum($albumId, Album $album, Photo $photo = null)``` - редактирует подборку с товарами

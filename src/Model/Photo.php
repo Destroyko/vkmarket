@@ -16,13 +16,11 @@ class Photo
 
     /**
      * <b>Параметры $cropX, $cropY, $cropWidth доступно только для главной фотографии (фото для обложки)</b>
-     *
      * @param string $path     Путь к картинке на сервере
      * @param boolean $mainPhoto является ли фотография обложкой товара (true — фотография для обложки, false — дополнительная фотография)
      * @param int $cropX        координата x для обрезки фотографии (верхний правый угол) - положительное число
      * @param int $cropY        координата y для обрезки фотографии (верхний правый угол) - положительное число
      * @param int $cropWidth    ширина фотографии после обрезки в px - положительное число, минимальное значение 400
-     *
      * @throws VkException
      */
     public function createMainPhoto ($path, $cropX = 0, $cropY = 0, $cropWidth = 400)
@@ -43,33 +41,28 @@ class Photo
 
     /**
      * <b>Количество дополнительных фотографий должно быть не более 4</b>
-     *
-     * @param array $paths     Массив путей фото на сервере
-     *
+     * @param array $path     Массив путей фото на сервере
      * @throws VkException
      */
-    public function createAdditionalPhoto (array $paths)
-    {
-        if (sizeof($paths) > 4) {
+    public function createAdditionalPhoto (array $path) {
+        if (sizeof($path) > 4) {
             throw new VkException('Number of additional photos should be no more than 4');
         }
 
-        foreach ($paths as $path) {
-            if (!file_exists($path)) {
+        foreach ($path as $val) {
+            if (!file_exists($val)) {
                 throw new VkException('File ' . $path . ' not found');
             }
         }
 
-        $this->additionalPhotoParams = $paths;
+        $this->additionalPhotoParams = $path;
     }
 
     /**
      * @param string $path     Путь к картинке на сервере
-     *
      * @throws VkException
      */
-    public function createAlbumPhoto ($path)
-    {
+    public function createAlbumPhoto ($path) {
         if (!file_exists($path)) {
             throw new VkException('File ' . $path . ' not found');
         }

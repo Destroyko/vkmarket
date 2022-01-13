@@ -11,11 +11,6 @@ class BaseService
      */
     protected $connection;
 
-    /**
-     * BaseService constructor.
-     *
-     * @param VkConnect $connection
-     */
     public function __construct(VkConnect $connection)
     {
         $this->connection = $connection;

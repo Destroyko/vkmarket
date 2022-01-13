@@ -12,9 +12,7 @@ class ProductService extends BaseService
     /**
      * @param Product $product
      * @param Photo $photo
-     *
      * @return int
-     *
      * @throws VkException
      */
     public function addProduct(Product $product, Photo $photo)
@@ -25,6 +23,7 @@ class ProductService extends BaseService
             'access_token' => $this->connection->getAccessToken(),
             'owner_id' => '-' . $this->connection->getGroupId(),
             'name' => $product->getName(),
+            'sku' => $product->getSku(),
             'description' => $product->getDescription(),
             'price' => $product->getPrice(),
             'category_id' => $product->getCategoryId(),
@@ -33,6 +32,9 @@ class ProductService extends BaseService
             'photo_ids' => $photoService->uploadAdditionalPhotos($photo),
             'v' => VkConnect::API_VERSION,
         ];
+        if($product->getOldPrice() > 0.01 &&  $product->getOldPrice() > $product->getPrice()) {
+            $arr['old_price'] = $product->getOldPrice();
+        }
 
         $content = $this->connection->getRequest('market.add', $arr);
         $id = (int)$content['response']['market_item_id'];
@@ -43,9 +45,7 @@ class ProductService extends BaseService
     /**
      * @param Product $product
      * @param Photo|null $photo
-     *
      * @return bool
-     *
      * @throws VkException
      */
     public function editProduct(Product $product, Photo $photo = null)
@@ -57,8 +57,9 @@ class ProductService extends BaseService
             'owner_id' => '-' . $this->connection->getGroupId(),
             'item_id' => $product->getVkItemId(),
             'name' => $product->getName(),
+            'sku' => $product->getSku(),
             'description' => $product->getDescription(),
-            'price' => $product->getPrice() / 100,
+            'price' => $product->getPrice(),
             'category_id' => $product->getCategoryId(),
             'deleted' => $product->getAvailability(),
             'main_photo_id' => ((!$photo || !sizeof($photo->getMainPhotoParams())) && $product->getVkItemMainPhotoId() !== null) ?
@@ -68,17 +69,17 @@ class ProductService extends BaseService
             'v' => VkConnect::API_VERSION,
         ];
 
+        if($product->getOldPrice() > 0.01 && $product->getOldPrice() > $product->getPrice()) {
+            $arr['old_price'] = $product->getOldPrice();
+        }
         $content = $this->connection->getRequest('market.edit', $arr);
 
         return true;
     }
 
     /**
-     * @param int $id
-     *
+     * @param $id
      * @return bool
-     *
-     * @throws VkException
      */
     public function deleteProduct($id)
     {
@@ -94,13 +95,6 @@ class ProductService extends BaseService
         return (boolean)$content['response'];
     }
 
-    /**
-     * @param int $id
-     *
-     * @return bool
-     *
-     * @throws VkException
-     */
     public function restoreProduct($id)
     {
         $arr = [
@@ -115,13 +109,6 @@ class ProductService extends BaseService
         return (boolean)$content['response'];
     }
 
-    /**
-     * @param int $id
-     *
-     * @return Product|bool
-     *
-     * @throws VkException
-     */
     public function getProductById($id)
     {
         $arr = [
@@ -135,15 +122,17 @@ class ProductService extends BaseService
         $content = $this->connection->getRequest('market.getById', $arr);
 
         $product = false;
-
         if (sizeof($content['response']['items'])) {
             if ($content['response']['items'][0]['id'] !== 0) {
-                $product = new Product($content['response']['items'][0]['title'],
-                    $content['response']['items'][0]['description'], $content['response']['items'][0]['category']['id'],
-                    $content['response']['items'][0]['price']['amount'], $content['response']['items'][0]['availability']);
-
+                $product = new Product(
+                    $content['response']['items'][0]['title'],
+                    $content['response']['items'][0]['sku'],
+                    $content['response']['items'][0]['description'],
+                    $content['response']['items'][0]['category']['id'],
+                    $content['response']['items'][0]['price']['amount'],
+                    $content['response']['items'][0]['availability']);
                 $product->setVkItemId($content['response']['items'][0]['id']);
-
+                $product->setAlbum($content['response']['items'][0]['albums_ids']);
                 if (sizeof($content['response']['items'][0]['photos'])) {
                     foreach ($content['response']['items'][0]['photos'] as $key => $vkPhoto) {
                         // если фото идёт первой в массиве, то это главное фото товара,
@@ -166,19 +155,9 @@ class ProductService extends BaseService
                 }
             }
         }
-
         return $product;
     }
 
-    /**
-     * @param int $albumId
-     * @param int $count
-     * @param int $offset
-     *
-     * @return array
-     *
-     * @throws VkException
-     */
     public function getProductsInAlbum($albumId, $count = 10, $offset = 0)
     {
         $arr = [
@@ -233,14 +212,6 @@ class ProductService extends BaseService
         return $productsArr;
     }
 
-    /**
-     * @param int $count
-     * @param string $offset
-     *
-     * @return mixed
-     *
-     * @throws VkException
-     */
     public function getCategories($count = 100, $offset = '')
     {
         $arr = [
@@ -251,7 +222,7 @@ class ProductService extends BaseService
         ];
 
         $content = $this->connection->getRequest('market.getCategories', $arr);
-
         return $content;
     }
+
 }

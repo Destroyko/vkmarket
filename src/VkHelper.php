@@ -8,7 +8,6 @@ class VkHelper
 {
     /**
      * @param array $content  массив с результатом ответа от API ВК
-     *
      * @throws VkException
      */
     public static function checkError($content) {

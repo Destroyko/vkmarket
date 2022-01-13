@@ -1,9 +1,11 @@
 <?php
 namespace Asil\VkMarket;
 
+use Asil\VkMarket\Exception\VkException;
+
 class VkConnect
 {
-    const API_VERSION = '5.65';
+    const API_VERSION = '5.131';
     const CONN_URL = 'https://api.vk.com/method/';
 
     private $accessToken;
@@ -12,10 +14,6 @@ class VkConnect
 
     /**
      * VkConnect constructor.
-     *
-     * @param $accessToken
-     * @param $groupId
-     * @param $ownerId
      */
     public function __construct($accessToken, $groupId, $ownerId)
     {
@@ -48,15 +46,27 @@ class VkConnect
         return $this->groupId;
     }
 
-    /**
-     * @param string $methodName
-     * @param array $params
-     *
-     * @return mixed
-     *
-     * @throws Exception\VkException
-     */
-    public function getRequest($methodName, array $params = [])
+
+    public function getRequest($uploadUrl, array $params)
+    {
+        $step = 0;
+        do {
+            try {
+                $tryAgain = false;
+                $content =  $this->getCurlRequest($uploadUrl, $params);
+            }
+            catch(VkException $e) {
+                sleep(5);
+                if ($step <= 5)
+                    $tryAgain = true;
+                $step++;
+            }
+        } while($tryAgain);
+
+        return $content;
+    }
+
+    public function getCurlRequest($methodName, array $params = [])
     {
         $getParams = '';
 
@@ -80,16 +90,26 @@ class VkConnect
         return $content;
     }
 
-    /**
-     * @param string $uploadUrl
-     * @param array $params
-     *
-     * @return mixed
-     *
-     * @throws Exception\VkException
-     */
     public function postRequest($uploadUrl, array $params)
     {
+        $step = 0;
+        do {
+            try {
+                $tryAgain = false;
+                $content =  $this->postCurlRequest($uploadUrl, $params);
+            }
+            catch(VkException $e) {
+                sleep(5);
+                if ($step <= 5)
+                    $tryAgain = true;
+                $step++;
+            }
+        } while($tryAgain);
+
+        return $content;
+    }
+
+    public function postCurlRequest($uploadUrl, array $params) {
         $conn = curl_init($uploadUrl);
         curl_setopt($conn, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($conn, CURLOPT_RETURNTRANSFER, true);

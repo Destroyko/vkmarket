@@ -6,13 +6,16 @@ namespace Asil\VkMarket\Model;
  * Class Product
  * Описывает продукт в API ВК
  */
+
 class Product
 {
     private $name;
     private $description;
     private $categoryId;
     private $price;
+    private $oldPrice;
     private $deleted;
+    private $sku;
 
     private $vkItemId = null;
     private $vkItemMainPhotoId = null;
@@ -25,20 +28,24 @@ class Product
 
     /**
      * Product constructor.
-     *
-     * @param string $name         название товара
-     * @param string $description      описание товара
-     * @param int $categoryId       идентификатор категории товара
-     * @param string $price        цена товара
-     * @param boolean $deleted      статус товара (1 — товар не доступен, 0 — товар доступен)
+     * @param string $name название товара
+     * @param string $sku
+     * @param string $description описание товара
+     * @param int $categoryId идентификатор категории товара
+     * @param string $price цена товара
+     * @param bool $oldPrice
+     * @param boolean $deleted статус товара (1 — товар не доступен, 0 — товар доступен)
      */
-    public function __construct($name, $description, $categoryId, $price, $deleted = false)
+    public function __construct($name, $sku, $description, $categoryId, $price, $oldPrice = null, $deleted = false)
     {
         $this->name = $name;
+        $this->sku = $sku;
         $this->description = $description;
         $this->categoryId = $categoryId;
-        $this->price = $price;
         $this->deleted = $deleted;
+        $this->price = $price;
+        if(isset($oldPrice))
+            $this->oldPrice = $oldPrice;
     }
 
     /**
@@ -47,6 +54,21 @@ class Product
     public function getName()
     {
         return $this->name;
+    }
+    /**
+     * @return mixed
+     */
+    public function getSku()
+    {
+        return $this->sku;
+    }
+
+    /**
+     * @param $album
+     */
+    public function setAlbum($album)
+    {
+        $this->album = $album;
     }
 
     /**
@@ -72,6 +94,20 @@ class Product
     {
         return $this->price;
     }
+    /**
+     * @return mixed
+     */
+    public function getAlbum()
+    {
+        return $this->album;
+    }
+    /**
+     * @return mixed
+     */
+    public function getOldPrice()
+    {
+        return $this->oldPrice;
+    }
 
     public function getAvailability()
     {
@@ -84,6 +120,14 @@ class Product
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @param string $sku
+     */
+    public function setSku($sku)
+    {
+        $this->sku = $sku;
     }
 
     /**
@@ -108,6 +152,14 @@ class Product
     public function setPrice($price)
     {
         $this->price = $price;
+    }
+
+    /**
+     * @param $oldPrice
+     */
+    public function setOldPrice($oldPrice)
+    {
+        $this->oldPrice = $oldPrice;
     }
 
     /**
@@ -188,4 +240,6 @@ class Product
     {
         return $this->vkItemUserlikes;
     }
+
+
 }

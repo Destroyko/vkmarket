@@ -12,23 +12,25 @@ class Album
     private $title;
     private $photoId;
     private $mainAlbum;
+    private $albumId;
 
     /**
      * Album constructor.
-     *
-     * @param $title    название подборки
-     * @param $photo    id фото подборки
-     * @param $mainAlbum    является ли подборка основной
+     * @param string $title название подборки
+     * @param string $photoId
+     * @param bool $mainAlbum является ли подборка основной
+     * @param int $albumId
      */
-    public function __construct($title, $photoId = '', $mainAlbum = false)
+    public function __construct($title, $photoId = '', $mainAlbum = false, $albumId = 0)
     {
         $this->title = $title;
         $this->photoId = $photoId;
         $this->mainAlbum = $mainAlbum;
+        $this->albumId = $albumId;
     }
 
     /**
-     * @return название подборки
+     * @return string название подборки
      */
     public function getTitle()
     {
@@ -36,7 +38,15 @@ class Album
     }
 
     /**
-     * @param название $title
+     * @return int
+     */
+    public function getAlbumId()
+    {
+        return $this->albumId;
+    }
+
+    /**
+     * @param string название $title
      */
     public function setTitle($title)
     {
@@ -52,7 +62,7 @@ class Album
     }
 
     /**
-     * @return id подборки
+     * @return int id подборки
      */
     public function getPhotoId()
     {
@@ -64,6 +74,9 @@ class Album
         $this->mainAlbum = true;
     }
 
+    /**
+     * @return bool
+     */
     public function getMainAlbum()
     {
         return $this->mainAlbum;
